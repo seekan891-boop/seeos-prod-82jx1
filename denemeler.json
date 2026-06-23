@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1782190926.129128",
+    "tarih": "2026-06-15",
+    "ad": "TYT Deneme 1",
+    "tur": "TYT",
+    "dersler": {
+      "Türkçe": 28.5,
+      "Sosyal": 15.0,
+      "Matematik": 22.0,
+      "Fen": 12.5
+    },
+    "toplam_net": 78.0,
+    "puan": 340
+  },
+  {
+    "id": "1782190926.173552",
+    "tarih": "2026-06-20",
+    "ad": "TYT Deneme 2",
+    "tur": "TYT",
+    "dersler": {
+      "Türkçe": 30.0,
+      "Sosyal": 14.5,
+      "Matematik": 25.0,
+      "Fen": 14.0
+    },
+    "toplam_net": 83.5,
+    "puan": 365
+  },
+  {
+    "id": "1782190971.45423",
+    "tarih": "2026-06-10",
+    "ad": "TYT Deneme 1",
+    "tur": "TYT",
+    "dersler": {
+      "Türkçe": 28.5,
+      "Sosyal": 15.0,
+      "Matematik": 22.0,
+      "Fen": 12.5
+    },
+    "toplam_net": 78.0,
+    "puan": 340
+  },
+  {
+    "id": "1782190971.486385",
+    "tarih": "2026-06-18",
+    "ad": "TYT Deneme 2",
+    "tur": "TYT",
+    "dersler": {
+      "Türkçe": 30.0,
+      "Sosyal": 14.5,
+      "Matematik": 25.0,
+      "Fen": 14.0
+    },
+    "toplam_net": 83.5,
+    "puan": 365
+  }
+]

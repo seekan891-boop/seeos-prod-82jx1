@@ -1,0 +1,134 @@
+{
+  "tema": "dark",
+  "bildirim": true,
+  "pomodoro_calisma": 25,
+  "pomodoro_mola": 5,
+  "pomodoro_uzun": 15,
+  "gunluk_soru": 200,
+  "gunluk_konu": 3,
+  "gunluk_pomodoro": 8,
+  "ses": true,
+  "odak_modu": false,
+  "koc_adi": "YKS Koçu",
+  "koc_avatar": "🤖",
+  "koc_kisilik": "motive_edici",
+  "parcacik": true,
+  "animasyon": true,
+  "konfeti": true,
+  "moduller": [
+    {
+      "ad": "Dashboard",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "dashboard"
+    },
+    {
+      "ad": "Pomodoro",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "pomodoro"
+    },
+    {
+      "ad": "Deneme Takvimi",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "deneme"
+    },
+    {
+      "ad": "Puan Hesapla",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "puan"
+    },
+    {
+      "ad": "İstatistikler",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "istatistik"
+    },
+    {
+      "ad": "AI Koç",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "ai-koc"
+    },
+    {
+      "ad": "Ders Programı",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "program"
+    },
+    {
+      "ad": "Günlük Görev",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "challenge"
+    },
+    {
+      "ad": "Flashcards",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "flashcards"
+    },
+    {
+      "ad": "Hedef Üniversite",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "hedef"
+    },
+    {
+      "ad": "Liderlik",
+      "aktif": true,
+      "bolum": "yks",
+      "id": "liderlik"
+    },
+    {
+      "ad": "Uyku Takibi",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "uyku"
+    },
+    {
+      "ad": "Sağlık Takibi",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "saglik"
+    },
+    {
+      "ad": "Diyet",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "diyet"
+    },
+    {
+      "ad": "Not Defteri",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "notlar"
+    },
+    {
+      "ad": "Motivasyon Duvarı",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "motivasyon"
+    },
+    {
+      "ad": "Veri Yedekle",
+      "aktif": true,
+      "bolum": "hayat",
+      "id": "yedek"
+    },
+    {
+      "id": "aile",
+      "ad": "Ailem",
+      "aktif": true,
+      "bolum": "hayat"
+    },
+    {
+      "id": "hava",
+      "ad": "Hava Durumu",
+      "aktif": true,
+      "bolum": "hayat"
+    }
+  ]
+}

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SeeOs 2027 🤖</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<svg style="position:absolute;width:0;height:0;" aria-hidden="true">
+    <defs>
+        <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#a78bfa"/>
+            <stop offset="100%" style="stop-color:#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="iconGrad2" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#818cf8"/>
+            <stop offset="100%" style="stop-color:#c084fc"/>
+        </linearGradient>
+    </defs>
+</svg>
+<canvas id="particles-bg"></canvas>
+
+<!-- Komut Paleti -->
+<div class="cmd-overlay" id="cmd-overlay" onclick="cmdKapat()">
+    <div class="cmd-palette" onclick="event.stopPropagation()">
+        <input type="text" id="cmd-input" placeholder="Komut ara... (modül adı, ayar, işlem)" oninput="cmdAra()" onkeydown="cmdKey(event)">
+        <div id="cmd-sonuclar"></div>
+        <div class="cmd-footer">↑↓ Gezin · Enter Seç · Esc Kapat</div>
+    </div>
+</div>
+
+<!-- Bildirim Merkezi -->
+<div class="notif-center" id="notif-center">
+    <div class="notif-header">🔔 Bildirimler <button onclick="document.getElementById('notif-center').classList.remove('active')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;">✕</button></div>
+    <div id="notif-list"><p style="color:var(--text-muted);font-size:12px;padding:16px;">Henüz bildirim yok.</p></div>
+</div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="logo-side">
+            <span class="logo-text">See<span class="grad">Os</span></span>
+            <sup class="ai-badge" id="ai-badge" style="display:none">AI</sup>
+        </div>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="side-section-title" onclick="toggleSideSection(this)" data-section="yks">📚 YKS Hazırlık <span class="section-arrow">▾</span></div>
+        <button class="side-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="18" width="7" height="3" rx="1"/></svg></span> Dashboard
+        </button>
+        <button class="side-btn" data-tab="pomodoro" onclick="switchTab('pomodoro')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Pomodoro
+        </button>
+        <button class="side-btn" data-tab="deneme" onclick="switchTab('deneme')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span> Deneme Takvimi
+        </button>
+        <button class="side-btn" data-tab="puan" onclick="switchTab('puan')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></span> Puan Hesapla
+        </button>
+        <button class="side-btn" data-tab="istatistik" onclick="switchTab('istatistik')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span> İstatistikler
+        </button>
+        <button class="side-btn" data-tab="ai-koc" onclick="switchTab('ai-koc')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="9" r="1.5"/><path d="M9 15h6"/></svg></span> AI Koç
+        </button>
+        <button class="side-btn" data-tab="program" onclick="switchTab('program')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span> Ders Programı
+        </button>
+        <button class="side-btn" data-tab="challenge" onclick="switchTab('challenge')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span> Günlük Görev
+        </button>
+        <button class="side-btn" data-tab="flashcards" onclick="switchTab('flashcards')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="8" height="12" rx="1"/><rect x="14" y="4" width="8" height="12" rx="1"/><line x1="2" y1="12" x2="14" y2="12"/></svg></span> Flashcards
+        </button>
+        <button class="side-btn" data-tab="hedef" onclick="switchTab('hedef')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span> Hedef Üniversite
+        </button>
+        <button class="side-btn" data-tab="liderlik" onclick="switchTab('liderlik')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span> Liderlik
+        </button>
+        <div class="side-section-title" onclick="toggleSideSection(this)" data-section="hayat">🌟 Hayat & Sağlık <span class="section-arrow">▾</span></div>
+        <button class="side-btn" data-tab="uyku" onclick="switchTab('uyku')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span> Uyku Takibi
+        </button>
+        <button class="side-btn" data-tab="saglik" onclick="switchTab('saglik')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 9V6a3 3 0 0 0-6 0v0"/><path d="M6 9V6a3 3 0 0 1 6 0"/><rect x="7" y="14" width="10" height="6" rx="2"/></svg></span> Sağlık Takibi
+        </button>
+        <button class="side-btn" data-tab="diyet" onclick="switchTab('diyet')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span> Diyet
+        </button>
+        <button class="side-btn" data-tab="notlar" onclick="switchTab('notlar')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span> Not Defteri
+        </button>
+        <button class="side-btn" data-tab="motivasyon" onclick="switchTab('motivasyon')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span> Motivasyon Duvarı
+        </button>
+        <button class="side-btn" data-tab="yedek" onclick="switchTab('yedek')">
+            <span class="side-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg></span> Veri Yedekle
+        </button>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="mini-countdown">
+            <span id="mini-gun">361</span> gün
+        </div>
+        <button class="side-btn" onclick="modulYonetAc()" style="margin-top:4px;justify-content:center;font-size:12px;"><span>📋</span> Modülleri Yönet</button>
+        <button class="side-btn" onclick="ayarlarAc()" style="margin-top:2px;justify-content:center;font-size:12px;"><span>⚙️</span> Ayarlar</button>
+    </div>
+</aside>
+
+<!-- ═══ OVERLAY (mobil sidebar kapanması için) ═══ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<main class="main-content">
+
+    <!-- Top bar -->
+    <header class="topbar">
+        <button class="burger-btn" onclick="toggleSidebar()" title="Menü">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-center" style="display:flex;align-items:center;gap:16px;">
+            <h1 class="page-title" id="page-title">📊 Dashboard</h1>
+        </div>
+        <div class="topbar-countdown">
+            <span class="count-sm" id="kalan-gun">361</span>g
+            <span class="count-sm" id="kalan-saat">00</span>s
+            <span class="count-sm" id="kalan-dakika">00</span>dk
+        </div>
+    </header>
+
+    <div class="content-area">
+
+        <!-- ═══ TAB 1: DASHBOARD ═══ -->
+        <div class="tab-panel active" id="tab-dashboard">
+            <!-- BIG DATA CARDS -->
+            <div class="big-cards">
+                <div class="big-card primary">
+                    <span class="big-card-icon">🎯</span>
+                    <span class="big-card-value" id="dash-son-puan">--</span>
+                    <span class="big-card-label">Son Deneme Puanı</span>
+                    <span class="big-card-sub" id="dash-son-net">0 net</span>
+                </div>
+                <div class="big-card accent">
+                    <span class="big-card-icon">📊</span>
+                    <span class="big-card-value" id="dash-siralama">--</span>
+                    <span class="big-card-label">Tahmini Sıralama</span>
+                    <span class="big-card-sub" id="dash-yuzdelik">%0</span>
+                </div>
+                <div class="big-card success">
+                    <span class="big-card-icon">⭐</span>
+                    <span class="big-card-value" id="dash-level">Lv1</span>
+                    <span class="big-card-label">Seviye · <span id="dash-xp">0 XP</span></span>
+                    <span class="big-card-sub" id="dash-streak">🔥 0 gün seri</span>
+                </div>
+            </div>
+
+            <!-- QUICK ACTIONS + PROGRESS -->
+            <div class="dash-mid">
+                <div class="dash-progress-card">
+                    <h3>🎯 Bugünkü İlerleme</h3>
+                    <div class="dash-progress-item"><span>Soru</span><div class="dash-bar-bg"><div class="dash-bar-fill soru" id="dash-bar-soru"></div></div><span id="dash-soru-text">0/200</span></div>
+                    <div class="dash-progress-item"><span>Konu</span><div class="dash-bar-bg"><div class="dash-bar-fill konu" id="dash-bar-konu"></div></div><span id="dash-konu-text">0/3</span></div>
+                    <div class="dash-progress-item"><span>Pom</span><div class="dash-bar-bg"><div class="dash-bar-fill pom" id="dash-bar-pom"></div></div><span id="dash-pom-text">0/8</span></div>
+                </div>
+                <div class="dash-actions">
+                    <button class="dash-action-btn" onclick="switchTab('pomodoro')">⏱️ Pomodoro</button>
+                    <button class="dash-action-btn" onclick="switchTab('deneme')">📝 Deneme Ekle</button>
+                    <button class="dash-action-btn" onclick="switchTab('challenge')">🎯 Görevler</button>
+                    <button class="dash-action-btn" onclick="switchTab('notlar')">📓 Hızlı Not</button>
+                </div>
+            </div>
+
+            <!-- WEAKEST / STRONGEST -->
+            <div class="dash-zayif-guclu" id="dash-zayif-guclu"></div>
+            <div class="ai-insight-bar" id="ai-insight-bar" style="display:none;">
+                <span>🧠</span><span id="ai-insight-text">AI analiz yükleniyor...</span>
+                <button class="btn-outline" onclick="switchTab('ai-koc')" style="font-size:11px;padding:4px 12px;margin-left:auto;">Detay ➤</button>
+            </div>
+            <div class="full-grid">
+                <section class="card subjects">
+                    <h2>📚 Ders Takip</h2>
+                    <div class="overall-progress">
+                        <div class="progress-circle">
+                            <svg viewBox="0 0 36 36"><path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/><path class="fill" id="progress-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831"/></svg>
+                            <div class="progress-text"><span id="overall-yuzde">%0</span></div>
+                        </div>
+                        <div>
+                            <span class="overall-label">Genel İlerleme</span>
+                            <div class="motivation" id="motivasyon" style="margin-top:6px;font-size:12px;"></div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-bottom:8px;">
+                    <input type="text" id="yeni-ders-ad" placeholder="Yeni ders adı..." style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px;font-family:inherit;outline:none;">
+                    <button class="btn-outline" onclick="dersEkle()" style="font-size:11px;padding:6px 12px;">➕ Ekle</button>
+                </div>
+                <div class="subject-list" id="ders-listesi"></div>
+                </section>
+
+                <div class="right-col">
+                    <section class="card daily">
+                        <h2>🎯 Günlük Hedef</h2>
+                        <div class="daily-stats">
+                            <div class="stat"><span class="stat-value" id="hedef-soru">200</span><span class="stat-label">Hedef Soru</span></div>
+                            <div class="stat"><span class="stat-value" id="hedef-konu">3</span><span class="stat-label">Hedef Konu</span></div>
+                        </div>
+                        <div class="daily-inputs">
+                            <div class="input-group"><label>Bugün Çözdüğün Soru</label><div class="input-row"><input type="number" id="input-soru" value="0" min="0"></div></div>
+                                                    <div class="input-group"><label>Bugün Bitirdiğin Konu</label><div class="input-row"><input type="number" id="input-konu" value="0" min="0"></div></div>
+                                                    <div class="input-group" style="margin-top:8px;"><label>Günlük Hedef Soru</label><input type="number" id="input-hedef-soru" value="200" min="1" onchange="hedefGuncelle()"></div>
+                                                    <div class="input-group"><label>Günlük Hedef Konu</label><input type="number" id="input-hedef-konu" value="3" min="1" onchange="hedefGuncelle()"></div>
+                            <button class="btn-primary" onclick="gunlukKaydet()">💾 İlerlemeyi Kaydet</button>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+
+                            </div>
+
+        <!-- ═══ TAB 2: POMODORO ═══ -->
+        <div class="tab-panel" id="tab-pomodoro">
+            <div class="pomodoro-layout">
+                <div class="card pomodoro-card">
+                    <div class="pomodoro-timer">
+                        <svg class="timer-ring" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="54" class="timer-bg"/>
+                            <circle cx="60" cy="60" r="54" class="timer-fill" id="timer-fill"/>
+                        </svg>
+                        <div class="timer-display" id="timer-display">25:00</div>
+                    </div>
+                    <div class="timer-controls">
+                        <button class="btn-primary" id="timer-start" onclick="pomodoroBaslat()">▶ Başlat</button>
+                        <button class="btn-outline" id="timer-pause" onclick="pomodoroDuraklat()" style="display:none">⏸ Duraklat</button>
+                        <button class="btn-outline" id="timer-reset" onclick="pomodoroSifirla()">↺ Sıfırla</button>
+                    </div>
+                    <div style="display:flex;gap:6px;justify-content:center;margin-bottom:8px;">
+                            <input type="number" id="pomodoro-ozel-dk" placeholder="Dk" min="1" max="120" style="width:60px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px;border-radius:8px;font-size:12px;text-align:center;font-family:inherit;outline:none;">
+                            <button class="btn-outline" onclick="pomodoroOzel()" style="font-size:11px;padding:6px 12px;">▶ Özel</button>
+                        </div>
+                    <div class="timer-mode">
+                            <button class="mode-btn active" data-mode="calisma" onclick="pomodoroMod('calisma')">📖 Çalışma (25dk)</button>
+                        <button class="mode-btn" data-mode="kisa-mola" onclick="pomodoroMod('kisa-mola')">☕ Kısa Mola (5dk)</button>
+                        <button class="mode-btn" data-mode="uzun-mola" onclick="pomodoroMod('uzun-mola')">😴 Uzun Mola (15dk)</button>
+                    </div>
+                    <div class="pomodoro-stats"><span id="pomodoro-count">🍅 0 pomodoro bugün</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 3: DENEME ═══ -->
+        <div class="tab-panel" id="tab-deneme">
+            <div class="deneme-grid">
+                <div class="card">
+                    <h2>📝 Deneme Sınavı Ekle</h2>
+                    <div class="deneme-form">
+                        <div class="form-row">
+                            <div class="input-group"><label>Deneme Adı</label><input type="text" id="deneme-ad" placeholder="örn: 3D TYT-5"></div>
+                            <div class="input-group"><label>Tarih</label><input type="date" id="deneme-tarih"></div>
+                            <div class="input-group"><label>Tür</label><select id="deneme-tur"><option>TYT</option><option>AYT</option><option>YDT</option></select></div>
+                        </div>
+                        <div class="form-row"><b style="font-size:12px;color:var(--primary-light);">TYT Netleri</b></div>
+                        <div class="form-row">
+                            <div class="input-group"><label>Türkçe</label><input type="number" id="net-tyt-turkce" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>Sosyal</label><input type="number" id="net-tyt-sosyal" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>Matematik</label><input type="number" id="net-tyt-mat" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>Fen</label><input type="number" id="net-tyt-fen" placeholder="0" step="0.25"></div>
+                        </div>
+                        <div class="form-row" style="margin-top:8px;"><b style="font-size:12px;color:var(--primary-light);">AYT Netleri</b></div>
+                        <div class="form-row">
+                            <div class="input-group"><label>AYT Mat</label><input type="number" id="net-ayt-mat" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>AYT Fizik</label><input type="number" id="net-ayt-fiz" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>AYT Kimya</label><input type="number" id="net-ayt-kim" placeholder="0" step="0.25"></div>
+                            <div class="input-group"><label>AYT Biyoloji</label><input type="number" id="net-ayt-biy" placeholder="0" step="0.25"></div>
+                        </div>
+                        <button class="btn-primary" onclick="denemeEkle()" style="width:auto;padding:10px 30px;">➕ Deneme Kaydet</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>📋 Geçmiş Denemeler</h2>
+                    <div id="deneme-listesi"><p style="color:var(--text-muted);">Henüz deneme kaydı yok.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 4: PUAN ═══ -->
+        <div class="tab-panel" id="tab-puan">
+            <div class="card">
+                <h2>🧮 YKS Puan Hesaplayıcı</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">Yaklaşık puan. OBP ve puan türü seç.</p>
+                <div class="form-row" style="margin-bottom:12px;">
+                    <div class="input-group"><label>OBP (Diploma Puanı)</label><input type="number" id="ph-obp" value="80" min="50" max="100" oninput="puanHesapla()"></div>
+                    <div class="input-group"><label>Puan Türü</label><select id="ph-tur" onchange="puanHesapla()"><option>SAY</option><option>EA</option><option>SÖZ</option><option>DİL</option></select></div>
+                </div>
+                <div class="puan-grid">
+                    <div class="puan-section"><h3>TYT</h3>
+                        <div class="input-group"><label>Türkçe (40)</label><input type="number" id="ph-tyt-tr" value="0" step="0.25" max="40" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Sosyal (20)</label><input type="number" id="ph-tyt-sos" value="0" step="0.25" max="20" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Matematik (40)</label><input type="number" id="ph-tyt-mat" value="0" step="0.25" max="40" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Fen (20)</label><input type="number" id="ph-tyt-fen" value="0" step="0.25" max="20" oninput="puanHesapla()"></div>
+                    </div>
+                    <div class="puan-section"><h3>AYT</h3>
+                        <div class="input-group"><label>Matematik (40)</label><input type="number" id="ph-ayt-mat" value="0" step="0.25" max="40" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Fizik (14)</label><input type="number" id="ph-ayt-fiz" value="0" step="0.25" max="14" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Kimya (13)</label><input type="number" id="ph-ayt-kim" value="0" step="0.25" max="13" oninput="puanHesapla()"></div>
+                        <div class="input-group"><label>Biyoloji (13)</label><input type="number" id="ph-ayt-biy" value="0" step="0.25" max="13" oninput="puanHesapla()"></div>
+                    </div>
+                </div>
+                <button class="btn-outline" onclick="osymHesapla()" style="width:auto;padding:10px 20px;margin-bottom:16px;">🎯 Gerçek ÖSYM Hesapla (2024)</button>
+                <div class="puan-sonuc" id="puan-sonuc">
+                    <div class="sonuc-item"><span class="sonuc-label">TYT Puanı</span><span class="sonuc-value" id="sonuc-tyt">--</span></div>
+                    <div class="sonuc-item"><span class="sonuc-label">AYT Puanı</span><span class="sonuc-value" id="sonuc-ayt">--</span></div>
+                    <div class="sonuc-item"><span class="sonuc-label">SAY Puanı</span><span class="sonuc-value" id="sonuc-say">--</span></div>
+                    <div class="sonuc-item"><span class="sonuc-label">Sıralama (tahmini)</span><span class="sonuc-value" id="sonuc-siralama">--</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 5: İSTATİSTİK ═══ -->
+        <div class="tab-panel" id="tab-istatistik">
+            <div class="rapor-kart" id="rapor-kart" style="display:none;"><span>📋</span><span id="rapor-metin"></span></div>
+            <div class="streak-kart" id="streak-kart" style="display:none;">🔥 <span id="streak-gun">0</span> gündür kesintisiz çalışıyorsun! · En uzun seri: <span id="streak-max">0</span> gün</div>
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-big" id="ist-toplam-pomodoro">0</span><span class="stat-desc">Toplam Pomodoro</span></div>
+                <div class="stat-card"><span class="stat-big" id="ist-toplam-saat">0</span><span class="stat-desc">Toplam Çalışma (saat)</span></div>
+                <div class="stat-card"><span class="stat-big" id="ist-toplam-deneme">0</span><span class="stat-desc">Çözülen Deneme</span></div>
+                <div class="stat-card"><span class="stat-big" id="ist-son-puan">0</span><span class="stat-desc">Son Deneme Puanı</span></div>
+            </div>
+            <div class="stats-two-col">
+                <div class="card"><h2>📊 Konu İlerleme</h2><div style="height:250px;position:relative;"><canvas id="chart-konu"></canvas></div></div>
+                <div class="card"><h2>📈 Deneme Puan Grafiği</h2><div id="ist-puan-grafik"><p style="color:var(--text-muted);">Henüz deneme verisi yok.</p></div></div>
+            </div>
+            <div class="card" style="margin-top:16px;"><h2>🔥 Son 7 Gün Çalışma</h2><div id="ist-haftalik"></div></div>
+        </div>
+
+        <!-- ═══ TAB: AI KOÇ v3 ═══ -->
+        <div class="tab-panel" id="tab-ai-koc">
+            <!-- API'siz durum -->
+            <div id="api-setup-ai" class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+                <div style="font-size:64px;margin-bottom:8px;">🤖</div>
+                <h2>AI Koç'unu Aktif Et</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">
+                    DeepSeek API anahtarını gir, sana özel yapay zeka koçun canlansın.<br>
+                    Ona isim verebilir, kişilik seçebilirsin!
+                </p>
+                <div class="input-row" style="max-width:400px;margin:0 auto;">
+                    <input type="password" id="api-key-input" placeholder="sk-..." style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:monospace;outline:none;">
+                    <button class="btn-primary" onclick="apiKeyKaydet()" style="width:auto;padding:10px 20px;">💾 Bağlan</button>
+                </div>
+                <p id="api-status-msg" style="font-size:12px;margin-top:8px;"></p>
+                <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:var(--primary-light);font-size:12px;">API anahtarı al →</a>
+                <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border);">
+                    <h3 style="font-size:14px;margin-bottom:10px;">💡 API'siz Tavsiyeler</h3>
+                    <div id="offline-tips" style="font-size:13px;color:var(--text-muted);line-height:1.6;"></div>
+                </div>
+            </div>
+
+            <!-- API AKTİF -->
+            <div id="ai-panel-active" style="display:none;">
+                <!-- Coach Header -->
+                <div class="koc-header">
+                    <div class="koc-avatar" id="koc-avatar-display">🤖</div>
+                    <div class="koc-info">
+                        <h2><span id="koc-name-display">YKS Koçu</span> <span class="koc-status">● Çevrimiçi</span></h2>
+                        <p class="koc-tagline" id="koc-tagline">YKS yolculuğunda sana rehberlik ediyorum</p>
+                    </div>
+                    <button class="btn-outline" onclick="kocAyarlarAc()" style="font-size:12px;padding:6px 14px;">⚙️ Koç Ayarları</button>
+                </div>
+
+                <!-- Quick Insights Bar -->
+                <div class="koc-insights" id="koc-insights">
+                    <div class="koc-insight-card">
+                        <span class="insight-icon">📊</span>
+                        <span class="insight-label">Genel İlerleme</span>
+                        <span class="insight-value" id="koc-insight-ilerleme">%0</span>
+                    </div>
+                    <div class="koc-insight-card">
+                        <span class="insight-icon">🔥</span>
+                        <span class="insight-label">Seri</span>
+                        <span class="insight-value" id="koc-insight-streak">0 gün</span>
+                    </div>
+                    <div class="koc-insight-card">
+                        <span class="insight-icon">⭐</span>
+                        <span class="insight-label">Level</span>
+                        <span class="insight-value" id="koc-insight-level">Lv1</span>
+                    </div>
+                    <div class="koc-insight-card">
+                        <span class="insight-icon">🎯</span>
+                        <span class="insight-label">Hedef Puan</span>
+                        <span class="insight-value" id="koc-insight-hedef">--</span>
+                    </div>
+                </div>
+
+                <!-- Main chat area with sidebar -->
+                <div class="koc-main">
+                    <!-- Preset sidebar -->
+                    <div class="koc-sidebar">
+                        <button class="koc-action-btn" onclick="presetGonder('motive-et')">💪 Günlük Motivasyon</button>
+                        <button class="koc-action-btn" onclick="presetGonder('program-yap')">📅 Haftalık Program</button>
+                        <button class="koc-action-btn" onclick="aiTabGoster('analiz');aiAnalizYap()">🧠 Kapsamlı Analiz</button>
+                        <button class="koc-action-btn" onclick="presetGonder('strateji')">🎯 Sınav Stratejisi</button>
+                        <button class="koc-action-btn" onclick="presetGonder('tercih')">🏫 Tercih Danışmanı</button>
+                        <button class="koc-action-btn" onclick="presetGonder('kaygi')">🧘 Sınav Kaygısı</button>
+                        <div style="border-top:1px solid var(--border);margin:8px 0;padding-top:8px;">
+                            <input type="text" id="koc-konu-input" placeholder="Konu anlat..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:8px;font-size:12px;font-family:inherit;outline:none;margin-bottom:6px;">
+                            <button class="koc-action-btn" onclick="kocKonuAnlat()">📖 Konuyu Anlat</button>
+                        </div>
+                    </div>
+
+                    <!-- Chat -->
+                    <div class="koc-chat-area">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="koc-welcome" id="koc-welcome">
+                                <div class="koc-welcome-avatar" id="koc-welcome-avatar">🤖</div>
+                                <h3>Merhaba! Ben <span id="koc-welcome-name">YKS Koçu</span></h3>
+                                <p>YKS yolculuğunda sana rehberlik etmek için buradayım. Bana soru sorabilir, program isteyebilir, konu anlatımı talep edebilirsin.</p>
+                                <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">💡 İpucu: Sol taraftaki butonlarla hızlı aksiyon alabilirsin.</p>
+                            </div>
+                        </div>
+                        <div class="koc-typing" id="koc-typing" style="display:none;">
+                            <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+                            <span style="font-size:11px;color:var(--text-muted);margin-left:8px;">Yazıyor...</span>
+                        </div>
+                        <div class="chat-input-row">
+                            <textarea id="chat-input" placeholder="Mesajını yaz... (Enter: gönder, Shift+Enter: alt satır)" rows="1" onkeydown="chatKeydown(event)"></textarea>
+                            <button class="btn-send" onclick="mesajGonder()" id="send-btn">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- OLD API SETUP REMOVED, NEW ABOVE -->
+<div style="display:none;" id="api-setup-ai-old" class="card">
+                <h2>🔑 DeepSeek API Bağlantısı</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">
+                    Yapay zeka koçu aktif etmek için DeepSeek API anahtarını gir.
+                    <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color:var(--primary-light);">API anahtarı al →</a>
+                </p>
+                <div class="input-row"><input type="password" id="api-key-input" placeholder="sk-..." style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:monospace;outline:none;"><button class="btn-primary" onclick="apiKeyKaydet()" style="width:auto;padding:10px 20px;">💾 Kaydet</button></div>
+                <p id="api-status-msg" style="font-size:12px;margin-top:8px;"></p>
+                <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+                    <h3 style="font-size:14px;margin-bottom:10px;">💡 API'siz Tavsiyeler</h3>
+                    <div id="offline-tips" style="font-size:13px;color:var(--text-muted);line-height:1.6;"></div>
+                </div>
+            </div>
+            <div id="ai-panel-active" style="display:none;">
+                <div class="ai-header-bar"><h2>🤖 AI Koç <span style="font-size:12px;color:var(--success);">● DeepSeek Aktif</span></h2></div>
+                <div class="ai-tabs">
+                    <button class="ai-tab active" onclick="aiTabGoster('sohbet')">💬 Sohbet</button>
+                    <button class="ai-tab" onclick="aiTabGoster('analiz')">📊 Analiz</button>
+                    <button class="ai-tab" onclick="aiTabGoster('program')">📅 Program</button>
+                    <button class="ai-tab" onclick="aiTabGoster('konular')">📖 Konular</button>
+                </div>
+                <!-- Sohbet -->
+                <div class="ai-tab-content active" id="ai-tab-sohbet">
+                <div class="preset-buttons">
+                    <button class="preset-btn" onclick="presetGonder('konu-anlat',prompt('Hangi konu?'))">📖 Konu Anlat</button>
+                    <button class="preset-btn" onclick="presetGonder('soru-coz',prompt('Soruyu yaz:'))">✏️ Soru Çöz</button>
+                    <button class="preset-btn" onclick="presetGonder('program-yap')">📅 Program Yap</button>
+                    <button class="preset-btn" onclick="presetGonder('motive-et')">💪 Motive Et</button>
+                    <button class="preset-btn" onclick="presetGonder('deneme-analiz',prompt('Deneme netleri:'))">📊 Deneme</button>
+                    <button class="preset-btn" onclick="presetGonder('strateji')">🎯 Strateji</button>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-msg assistant"><div class="msg-content">Merhaba! Ben senin YKS Koçunum. Sana ders anlatabilir, soru çözebilir, program hazırlayabilirim. 🎓</div></div>
+                    </div>
+                    <div class="chat-input-row">
+                        <textarea id="chat-input" placeholder="Sorunu yaz, Enter'la gönder..." rows="1" onkeydown="chatKeydown(event)"></textarea>
+                        <button class="btn-send" onclick="mesajGonder()" id="send-btn">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 7: UYKU TAKİBİ ═══ -->
+        <div class="tab-panel" id="tab-uyku">
+            <div class="uyku-grid">
+                <div class="card">
+                    <h2>😴 Uyku Kaydı Ekle</h2>
+                    <div class="form-row">
+                        <div class="input-group"><label>Tarih</label><input type="date" id="uyku-tarih"></div>
+                        <div class="input-group"><label>Yatış Saati</label><input type="time" id="uyku-saat" value="23:00"></div>
+                        <div class="input-group"><label>Kalkış Saati</label><input type="time" id="uyku-kalkis" value="07:00"></div>
+                        <div class="input-group"><label>Kalite (1-5)</label>
+                            <select id="uyku-kalite"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+                    </div>
+                    <div class="input-group" style="margin-top:12px;"><label>Not</label><input type="text" id="uyku-not" placeholder="Rüya gördüm, rahat uyudum..."></div>
+                    <button class="btn-primary" onclick="uykuEkle()" style="width:auto;padding:10px 30px;margin-top:16px;">➕ Kaydet</button>
+                </div>
+                <div class="card">
+                    <h2>📊 Uyku İstatistikleri</h2>
+                    <div class="stats-grid" style="margin-bottom:16px;">
+                        <div class="stat-card"><span class="stat-big" id="uyku-ortalama">--</span><span class="stat-desc">Ort. Uyku (saat)</span></div>
+                        <div class="stat-card"><span class="stat-big" id="uyku-son-kalite">--</span><span class="stat-desc">Son Uyku Kalitesi</span></div>
+                    </div>
+                    <h3 style="font-size:14px;margin-bottom:8px;">Son 7 Gün</h3>
+                    <div style="height:200px;position:relative;"><canvas id="chart-uyku"></canvas></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:16px;">
+                <h2>📋 Uyku Geçmişi</h2>
+                <div id="uyku-listesi"><p style="color:var(--text-muted);">Henüz kayıt yok.</p></div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 8: SAĞLIK TAKİBİ ═══ -->
+        <div class="tab-panel" id="tab-saglik">
+            <div class="saglik-grid">
+                <div class="card">
+                    <h2>📏 Profil</h2>
+                    <div class="form-row">
+                        <div class="input-group"><label>Boy (cm)</label><input type="number" id="saglik-boy" placeholder="175" min="100" max="250"></div>
+                        <div class="input-group"><label>Cinsiyet</label><select id="saglik-cinsiyet"><option value="">Seç</option><option>Erkek</option><option>Kadın</option></select></div>
+                    </div>
+                    <button class="btn-primary" onclick="saglikProfilKaydet()" style="width:auto;padding:10px 20px;margin-top:12px;">💾 Profili Kaydet</button>
+                    
+                    <h3 style="font-size:14px;margin:20px 0 12px;">⚖️ Bugünkü Ölçüm</h3>
+                    <div class="form-row">
+                        <div class="input-group"><label>Kilo (kg)</label><input type="number" id="saglik-kilo" placeholder="70" step="0.1" min="30" max="200"></div>
+                        <div class="input-group"><label>Su (bardak)</label><input type="number" id="saglik-su" placeholder="8" min="0" max="30"></div>
+                        <div class="input-group"><label>Tarih</label><input type="date" id="saglik-tarih"></div>
+                    </div>
+                    <button class="btn-primary" onclick="saglikKaydet()" style="width:auto;padding:10px 20px;margin-top:12px;">💾 Ölçümü Kaydet</button>
+                    
+                    <div class="bmi-sonuc" id="bmi-sonuc" style="display:none;margin-top:16px;"></div>
+                </div>
+                <div class="card">
+                    <h2>📊 Vücut Kitle Endeksi</h2>
+                    <div class="bmi-gosterge" id="bmi-gosterge">
+                        <div class="bmi-deger" id="bmi-deger">--</div>
+                        <div class="bmi-kategori" id="bmi-kategori">Boy ve kilo girin</div>
+                        <div class="bmi-bar"><div class="bmi-bar-fill" id="bmi-bar-fill" style="width:0%"></div></div>
+                        <div class="bmi-labels"><span>Zayıf</span><span>Normal</span><span>Fazla</span><span>Obez</span></div>
+                    </div>
+                    <h3 style="font-size:14px;margin:20px 0 8px;">📈 Kilo Grafiği</h3>
+                    <div style="height:160px;position:relative;"><canvas id="chart-kilo"></canvas></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:16px;">
+                <h2>📋 Ölçüm Geçmişi</h2>
+                <div id="saglik-listesi"><p style="color:var(--text-muted);">Henüz kayıt yok.</p></div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 9: HEDEF ÜNİVERSİTE ═══ -->
+        <div class="tab-panel" id="tab-hedef">
+            <div class="hedef-grid">
+                <div class="card">
+                    <h2>🎯 Hedef Ekle</h2>
+                    <div class="form-row">
+                        <div class="input-group"><label>Üniversite</label><input type="text" id="hedef-uni" placeholder="Boğaziçi, ODTÜ, İTÜ..."></div>
+                        <div class="input-group"><label>Bölüm</label><input type="text" id="hedef-bolum" placeholder="Tıp, Bilgisayar Müh..."></div>
+                    </div>
+                    <div class="form-row" style="margin-top:12px;">
+                        <div class="input-group"><label>Taban Puan</label><input type="number" id="hedef-puan" placeholder="500" step="0.1"></div>
+                        <div class="input-group"><label>Taban Sıralama</label><input type="number" id="hedef-siralama" placeholder="5000"></div>
+                    </div>
+                    <div class="input-group" style="margin-top:8px;"><label>Üniversite Fotoğrafı</label><input type="file" id="hedef-foto-input" accept="image/*" onchange="hedefFotoSec(event)" style="display:none;"><button class="btn-outline" onclick="document.getElementById('hedef-foto-input').click()" style="width:auto;padding:6px 14px;font-size:12px;">📷 Fotoğraf Seç</button><div id="hedef-foto-onizle" style="margin-top:4px;"></div></div>
+                <button class="btn-primary" onclick="hedefEkle()" style="width:auto;padding:10px 30px;margin-top:12px;">➕ Hedef Ekle</button>
+                </div>
+                <div class="card">
+                    <h2>📊 Durum</h2>
+                    <div class="stats-grid" style="margin-bottom:16px;">
+                        <div class="stat-card"><span class="stat-big" id="hedef-son-puan">--</span><span class="stat-desc">Son Deneme Puanın</span></div>
+                        <div class="stat-card"><span class="stat-big" id="hedef-fark">--</span><span class="stat-desc">En Yakın Hedefe Fark</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:16px;">
+                <h2>📋 Hedeflerim</h2>
+                <div id="hedef-listesi"><p style="color:var(--text-muted);">Henüz hedef eklenmedi.</p></div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 11: VERİ YEDEKLE ═══ -->
+        <div class="tab-panel" id="tab-yedek">
+            <div class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+                <h2>💾 Veri Yedekleme</h2>
+                <p style="color:var(--text-muted);margin-bottom:24px;">Tüm verilerini tek dosyada dışa aktar veya içe aktar.</p>
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                    <button class="btn-primary" onclick="veriDisariAktar()" style="width:auto;padding:12px 30px;">📤 Dışa Aktar (JSON)</button>
+                    <button class="btn-outline" onclick="document.getElementById('import-file').click()" style="width:auto;padding:12px 30px;">📥 İçe Aktar</button>
+                </div>
+                <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+                    <h3 style="font-size:14px;margin-bottom:12px;">🕰️ Wayback Machine</h3>
+                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Geçmiş bir tarihteki tüm verilerini gör.</p>
+                    <div style="display:flex;gap:8px;justify-content:center;">
+                        <input type="date" id="wayback-tarih" style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-family:inherit;outline:none;">
+                        <button class="btn-primary" onclick="waybackGoster()" style="width:auto;padding:8px 20px;">🔍 Göster</button>
+                    </div>
+                    <div id="wayback-sonuc" style="margin-top:12px;font-size:13px;"></div>
+                </div>
+                <input type="file" id="import-file" accept=".json" style="display:none" onchange="veriIceriAktar(event)">
+                <p id="yedek-durum" style="margin-top:16px;font-size:13px;"></p>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 12: NOT DEFTERİ ═══ -->
+        <div class="tab-panel" id="tab-notlar">
+            <div class="card">
+                <h2>📓 Yeni Not</h2>
+                <div class="input-group"><label>Başlık</label><input type="text" id="not-baslik" placeholder="Not başlığı..."></div>
+                <div class="input-group" style="margin-top:12px;"><label>İçerik</label>
+                    <textarea id="not-icerik" rows="4" placeholder="Formüller, hatırlatmalar, ipuçları..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea></div>
+                <button class="btn-primary" onclick="notEkle()" style="width:auto;padding:10px 30px;margin-top:12px;">➕ Not Ekle</button>
+            </div>
+            <div class="not-grid" id="not-listesi" style="margin-top:16px;"><p style="color:var(--text-muted);">Henüz not yok.</p></div>
+        </div>
+
+        <!-- ═══ TAB 13: MOTİVASYON DUVARI ═══ -->
+        <div class="tab-panel" id="tab-motivasyon">
+            <div class="card" style="text-align:center;margin-bottom:16px;">
+                <h2>🌟 Motivasyon Duvarı</h2>
+                <p style="color:var(--text-muted);font-size:13px;">Seni motive eden sözleri, hedeflerini buraya ekle.</p>
+                <div style="display:flex;gap:8px;margin-top:16px;justify-content:center;">
+                    <input type="text" id="motivasyon-icerik" placeholder="Haydi başla! Sana inanıyorum..." style="background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;width:300px;">
+                    <button class="btn-primary" onclick="motivasyonEkle()" style="width:auto;padding:10px 20px;">🌟 Ekle</button>
+                </div>
+            </div>
+            <div class="motivasyon-grid" id="motivasyon-listesi"><p style="color:var(--text-muted);">Henüz eklenmedi.</p></div>
+        </div>
+
+        <!-- ═══ TAB 14: DERS PROGRAMI ═══ -->
+        <div class="tab-panel" id="tab-program">
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:center;"><h2>📅 Haftalık Ders Programı</h2><button class="btn-outline" onclick="programPDF()" style="font-size:12px;padding:6px 16px;">🖨️ PDF / Yazdır</button></div>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Her gün için saatlik çalışma planı. Değişiklikler otomatik kaydedilir.</p>
+                <div class="program-grid" id="program-grid"></div>
+                <button class="btn-primary" onclick="programKaydet()" style="width:auto;padding:10px 30px;margin-top:16px;">💾 Programı Kaydet</button>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 15: GÜNLÜK GÖREV ═══ -->
+        <div class="tab-panel" id="tab-challenge">
+            <div class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+                <h2>🎯 Günlük Görevler</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">Her gün 3 yeni görev. Hepsini tamamla!</p>
+                <div class="challenge-progress" id="challenge-progress"></div>
+                <div id="challenge-listesi"></div>
+                <div style="margin-top:16px;display:flex;gap:8px;">
+                    <input type="text" id="challenge-ozel" placeholder="Kendi görevini ekle..." style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+                    <button class="btn-primary" onclick="challengeOzelEkle()" style="width:auto;padding:8px 16px;">➕ Ekle</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 16: FLASHCARDS ═══ -->
+        <div class="tab-panel" id="tab-flashcards">
+            <div class="flashcard-grid">
+                <div class="card">
+                    <h2>🃏 Yeni Kart Ekle</h2>
+                    <div class="input-group"><label>Ön Yüz (Soru/Kavram)</label><input type="text" id="fc-on" placeholder="Fotosentez nedir?"></div>
+                    <div class="input-group" style="margin-top:8px;"><label>Arka Yüz (Cevap)</label><input type="text" id="fc-arka" placeholder="Işık enerjisiyle CO₂ ve H₂O'dan glikoz üretimi"></div>
+                    <div class="input-group" style="margin-top:8px;"><label>Ders</label><select id="fc-ders"><option>Genel</option><option>Matematik</option><option>Fizik</option><option>Kimya</option><option>Biyoloji</option><option>Türkçe</option><option>Tarih</option><option>Coğrafya</option></select></div>
+                    <button class="btn-primary" onclick="flashcardEkle()" style="width:auto;padding:10px 30px;margin-top:12px;">➕ Kart Ekle</button>
+                </div>
+                <div class="card">
+                    <h2>📖 Çalışma Modu</h2>
+                    <div class="flashcard-view" id="flashcard-view" style="text-align:center;">
+                        <div class="fc-kart" id="fc-kart" onclick="flashcardCevir()">
+                            <div class="fc-on" id="fc-on-text">Hazırlamak için kart ekle</div>
+                            <div class="fc-arka" id="fc-arka-text" style="display:none;"></div>
+                        </div>
+                        <div class="fc-kontroller" style="margin-top:12px;">
+                            <button class="btn-outline" onclick="flashcardZor()" style="color:#ef4444;border-color:#ef4444;">😰 Zor</button>
+                            <button class="btn-outline" onclick="flashcardOrta()">🤔 Orta</button>
+                            <button class="btn-outline" onclick="flashcardKolay()" style="color:#10b981;border-color:#10b981;">😎 Kolay</button>
+                        </div>
+                        <p style="font-size:12px;color:var(--text-muted);margin-top:4px;" id="fc-sayac">0/0 kart</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:16px;">
+                <h2>📋 Kart Listesi</h2>
+                <div id="flashcard-listesi"><p style="color:var(--text-muted);">Henüz kart yok.</p></div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB 17: LİDERLİK ═══ -->
+        <div class="tab-panel" id="tab-liderlik">
+            <div class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+                <h2>🏅 Liderlik Tablosu</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:20px;">XP sıralaması — her aksiyon puan kazandırır!</p>
+                <div id="leaderboard-list"></div>
+                <p style="font-size:11px;color:var(--text-muted);margin-top:16px;">Pomodoro:25XP · Deneme:50XP · Konu:20XP · Günlük:15XP</p>
+            </div>
+        </div>
+
+        <!-- ═══ TAB: DIYET TAKİBİ ═══ -->
+        <div class="tab-panel" id="tab-diyet">
+            <div class="diyet-grid">
+                <div class="card">
+                    <h2>🎯 Hedef Belirle</h2>
+                    <div class="form-row">
+                        <div class="input-group"><label>Başlangıç Kilon (kg)</label><input type="number" id="diyet-baslangic" placeholder="80" step="0.1"></div>
+                        <div class="input-group"><label>Hedef Kilon (kg)</label><input type="number" id="diyet-hedef" placeholder="70" step="0.1"></div>
+                        <div class="input-group"><label>Günlük Kalori</label><input type="number" id="diyet-kalori" placeholder="2000"></div>
+                    </div>
+                    <button class="btn-primary" onclick="diyetHedefKaydet()" style="width:auto;padding:10px 30px;margin-top:12px;">💾 Hedefi Kaydet</button>
+                    <div class="diyet-progress" id="diyet-progress" style="display:none;margin-top:16px;"></div>
+                </div>
+                <div class="card">
+                    <h2>📊 Kalori Özeti</h2>
+                    <div class="kalori-halka">
+                        <svg viewBox="0 0 36 36" style="width:100px;height:100px;">
+                            <path class="kalori-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="var(--border)" stroke-width="3"/>
+                            <path class="kalori-fill" id="kalori-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                        <div class="kalori-text">
+                            <span id="kalori-alinan" style="font-size:22px;">0</span>
+                            <span style="font-size:11px;">/ <span id="kalori-hedef">2000</span> kcal</span>
+                        </div>
+                    </div>
+                    <div class="kalori-detay" id="kalori-detay">
+                        <span>🥗 Kalan: <b id="kalori-kalan">2000</b> kcal</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Öğün ekle -->
+            <div class="card" style="margin-top:16px;">
+                <h2>🍽️ Öğün Ekle</h2>
+                <div class="form-row">
+                    <div class="input-group"><label>Öğün</label><select id="diyet-ogun"><option>Kahvaltı</option><option>Öğle</option><option>Akşam</option><option>Ara Öğün</option></select></div>
+                    <div class="input-group"><label>Yemek</label><input type="text" id="diyet-yemek" placeholder="Tavuk + Pilav" oninput="diyetAra()"></div>
+                    <div class="input-group"><label>Kalori</label><input type="number" id="diyet-kalori-ekle" placeholder="350"></div>
+                </div>
+                <div id="yemek-onerileri" style="margin-top:8px;"></div>
+                <button class="btn-primary" onclick="diyetOgunEkle()" style="width:auto;padding:10px 30px;margin-top:12px;">➕ Öğün Ekle</button>
+            </div>
+
+            <!-- Bugünkü öğünler -->
+            <div class="card" style="margin-top:16px;">
+                <h2>📋 Bugünkü Öğünler</h2>
+                <div id="diyet-bugun"><p style="color:var(--text-muted);">Henüz öğün eklenmedi.</p></div>
+            </div>
+
+            <!-- Kilo girişi -->
+            <div class="card" style="margin-top:16px;">
+                <h2>⚖️ Bugünkü Kilo</h2>
+                <div class="form-row">
+                    <div class="input-group"><label>Kilo (kg)</label><input type="number" id="diyet-kilo" placeholder="79.5" step="0.1"></div>
+                </div>
+                <button class="btn-primary" onclick="diyetKiloKaydet()" style="width:auto;padding:10px 30px;margin-top:8px;">💾 Kilo Kaydet</button>
+                <div style="height:150px;position:relative;margin-top:16px;"><canvas id="chart-diyet"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ═══ MODÜL: MİNİ TEST (yeniden) ═══ -->
+        <div class="tab-panel" id="tab-quiz">
+            <div class="card" style="text-align:center;max-width:500px;margin:0 auto;">
+                <h2>❓ Mini Test</h2>
+                <p style="color:var(--text-muted);margin-bottom:16px;">15 soruluk karışık YKS testi.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:16px;">
+                    <button class="mode-btn" onclick="quizBaslat('')">🔀 Karışık</button>
+                    <button class="mode-btn" onclick="quizBaslat('Matematik')">📐 Matematik</button>
+                    <button class="mode-btn" onclick="quizBaslat('Fen')">🔬 Fen</button>
+                    <button class="mode-btn" onclick="quizBaslat('Sosyal')">📖 Sosyal</button>
+                </div>
+                <div id="quiz-alani"><p style="color:var(--text-muted);">Başlamak için ders seç.</p></div>
+            </div>
+        </div>
+
+        <!-- ═══ MODÜL: ÇALIŞMA MÜZİĞİ ═══ -->
+        <div class="tab-panel" id="tab-muzik">
+            <div class="card" style="text-align:center;max-width:600px;margin:0 auto;">
+                <h2>🎵 Çalışma Müziği</h2>
+                <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;">Odaklanmanı artıracak lofi ve ambient müzikler.</p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:16px;">
+                    <button class="mode-btn active" onclick="muzikCal('lofi')">🎧 Lofi</button>
+                    <button class="mode-btn" onclick="muzikCal('ambient')">🌊 Ambient</button>
+                    <button class="mode-btn" onclick="muzikCal('classical')">🎻 Klasik</button>
+                    <button class="mode-btn" onclick="muzikCal('nature')">🌿 Doğa</button>
+                </div>
+                <div id="muzik-player" style="margin-top:8px;">
+                    <p style="color:var(--text-muted);font-size:12px;">▶ Oynatmak için tıkla. Arka planda çalar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ MODÜL: AİLE ═══ -->
+        <div class="tab-panel" id="tab-aile">
+            <div class="card" style="margin-bottom:16px;">
+                <h2>👨‍👩‍👧‍👦 Ailem</h2>
+                <div class="form-row">
+                    <div class="input-group"><label>Adı</label><input type="text" id="aile-ad" placeholder="Anne, Baba, Kardeş..."></div>
+                    <div class="input-group"><label>Rolü</label><select id="aile-rol"><option>Anne</option><option>Baba</option><option>Abla</option><option>Ağabey</option><option>Kardeş</option><option>Eş</option><option>Çocuk</option><option>Diğer</option></select></div>
+                    <div class="input-group"><label>Bağlı Olduğu Kişi</label><select id="aile-bagli"><option value="">-- Yok --</option></select></div>
+                </div>
+                <div class="input-group" style="margin-top:8px;"><label>Fotoğraf</label>
+                    <input type="file" id="aile-foto-input" accept="image/*" onchange="aileFotoSec(event)" style="display:none;">
+                    <button class="btn-outline" onclick="document.getElementById('aile-foto-input').click()" style="width:auto;padding:8px 16px;">📷 Fotoğraf Seç</button>
+                    <div id="aile-foto-onizle" style="margin-top:8px;"></div>
+                </div>
+                <div class="input-group" style="margin-top:8px;"><label>Not</label><input type="text" id="aile-not" placeholder="Not ekle..."></div>
+                <button class="btn-primary" onclick="aileEkle()" style="width:auto;padding:10px 30px;margin-top:12px;">➕ Ekle</button>
+            </div>
+            <div class="aile-grid" id="aile-grid"><p style="color:var(--text-muted);">Henüz üye eklenmedi.</p></div>
+            <div class="card" style="margin-top:16px;">
+                <h2>🌳 Soy Ağacı</h2>
+                <div class="soy-agaci" id="soy-agaci"><p style="color:var(--text-muted);">Aile üyeleri eklendikçe soy ağacı oluşur.</p></div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Alt Konu Modal -->
+<div id="alt-konu-modal" class="modal-overlay">
+    <div class="modal" style="width:480px">
+        <h3>📝 <span id="alt-modal-ders-ad"></span> - Detaylı Konular</h3>
+        <div class="alt-konu-progress">Tamamlanan: <span id="alt-modal-sayac">0/0</span></div>
+        <div class="alt-konu-list" id="alt-konu-listesi"></div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+            <input type="text" id="yeni-konu-ad" placeholder="Yeni konu ekle..." style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;">
+            <button class="btn-outline" onclick="konuEkleModal()" style="font-size:12px;padding:8px 14px;">➕ Ekle</button>
+        </div>
+        <div class="modal-buttons"><button onclick="altModalKapat()">Kapat</button><button class="primary" onclick="konuKaydetModal()">💾 Kaydet</button></div>
+    </div>
+</div>
+
+<!-- Konu Modal -->
+<div id="konu-modal" class="modal-overlay">
+    <div class="modal"><h3>📝 <span id="modal-ders-ad"></span></h3>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">Toplam <span id="modal-konu-sayisi"></span> konu</p>
+        <input type="number" id="modal-tamamlanan" min="0" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:var(--radius-sm);font-size:15px;font-family:inherit;outline:none;">
+        <div class="modal-buttons"><button onclick="modalKapat()">İptal</button><button class="primary" onclick="konuKaydet()">Kaydet</button></div>
+    </div>
+</div>
+
+<!-- Ayarlar Modal -->
+<div id="ayarlar-modal" class="modal-overlay">
+    <div class="modal" style="width:520px;max-height:80vh;overflow-y:auto;">
+        <h3>⚙️ Ayarlar</h3>
+        <div class="ayar-group"><label>Tema</label><select id="ayar-tema"><option value="dark">🌓 Tema1 (Premium)</option><option value="light">☀️ Aydınlık</option><option value="oled">🌑 OLED</option><option value="minimal">⬛ Ultra Minimal</option></select></div>
+        <div class="ayar-group"><label>Günlük Hedef Soru</label><input type="number" id="ayar-soru" min="0" max="1000"></div>
+        <div class="ayar-group"><label>Günlük Hedef Konu</label><input type="number" id="ayar-konu" min="0" max="20"></div>
+        <div class="ayar-group"><label>Günlük Pomodoro Hedefi</label><input type="number" id="ayar-pomodoro" min="0" max="20"></div>
+        <hr style="border-color:var(--border);margin:12px 0;">
+        <div class="ayar-group"><label>Çalışma Süresi (dk)</label><input type="number" id="ayar-calisma" min="5" max="60"></div>
+        <div class="ayar-group"><label>Kısa Mola (dk)</label><input type="number" id="ayar-mola" min="1" max="15"></div>
+        <div class="ayar-group"><label>Uzun Mola (dk)</label><input type="number" id="ayar-uzun" min="5" max="30"></div>
+        <hr style="border-color:var(--border);margin:12px 0;">
+        <div class="ayar-toggle"><label>Ses Efekti</label><input type="checkbox" id="ayar-ses" checked></div>
+        <div class="ayar-toggle"><label>Bildirimler</label><input type="checkbox" id="ayar-bildirim" checked></div>
+        <hr style="border-color:var(--border);margin:12px 0;">
+        <div class="ayar-toggle"><label>✨ Arka Plan Parçacıkları</label><input type="checkbox" id="ayar-parcacik" checked></div>
+        <div class="ayar-toggle"><label>🎨 Sayfa Animasyonları</label><input type="checkbox" id="ayar-animasyon" checked></div>
+        <div class="ayar-toggle"><label>🎉 Konfeti Efekti</label><input type="checkbox" id="ayar-konfeti" checked></div>
+        <div class="modal-buttons">
+            <button onclick="ayarlarKaydet()" class="primary">💾 Kaydet</button>
+            <button onclick="ayarlarKapat()">İptal</button>
+        </div>
+    </div>
+</div>
+
+<!-- Geri Sayım Overlay -->
+<div id="countdown-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+    <div style="font-size:120px;font-weight:900;background:linear-gradient(180deg,#fff,var(--primary-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;" id="cd-overlay-time">00:00</div>
+    <div style="font-size:20px;color:var(--text-muted);" id="cd-overlay-label">Sınava Kalan</div>
+    <button class="btn-outline" onclick="document.getElementById('countdown-overlay').style.display='none'" style="margin-top:20px;">✕ Kapat</button>
+</div>
+
+<!-- Hızlı Not Widget -->
+<!-- AI Hızlı Soru -->
+<div id="ai-quick" style="position:fixed;bottom:80px;right:20px;z-index:250;">
+    <button id="ai-quick-btn" onclick="aiQuickToggle()" style="width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#6d28d9);border:none;color:#fff;font-size:22px;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,.4);">🤖</button>
+    <div id="ai-quick-panel" style="display:none;position:absolute;bottom:60px;right:0;width:300px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;box-shadow:0 8px 40px rgba(0,0,0,.4);">
+        <textarea id="ai-quick-input" rows="2" placeholder="Hızlı soru sor..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:8px;font-size:13px;font-family:inherit;outline:none;resize:none;"></textarea>
+        <button class="btn-primary" onclick="aiQuickSor()" style="margin-top:8px;font-size:12px;padding:8px;">🤖 Sor</button>
+        <div id="ai-quick-cevap" style="margin-top:8px;font-size:12px;color:var(--text-muted);max-height:150px;overflow-y:auto;"></div>
+    </div>
+</div>
+<div id="quick-note" style="position:fixed;bottom:20px;right:20px;z-index:250;display:none;">
+    <button id="quick-note-btn" onclick="quickNoteToggle()" style="width:50px;height:50px;border-radius:50%;background:var(--primary);border:none;color:#fff;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(124,58,237,.4);">📝</button>
+    <div id="quick-note-panel" style="display:none;position:absolute;bottom:60px;right:0;width:280px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:0 8px 40px rgba(0,0,0,.4);">
+        <textarea id="quick-note-text" rows="4" placeholder="Hızlı not..." style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;resize:none;"></textarea>
+        <button class="btn-primary" onclick="quickNoteSave()" style="margin-top:8px;font-size:12px;padding:8px;">💾 Kaydet</button>
+    </div>
+</div>
+
+<!-- Modül Yönetim Modal -->
+<div id="modul-modal" class="modal-overlay">
+    <div class="modal" style="width:560px;max-height:80vh;overflow-y:auto;">
+        <h3>📋 Modülleri Yönet</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Aktif/pasif yap, adını değiştir, sırala.</p>
+        <div id="modul-listesi"></div>
+        <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;">
+            <h4 style="font-size:13px;margin-bottom:8px;">📦 Hazır Modül Ekle</h4>
+            <div id="hazir-moduller" style="display:flex;flex-direction:column;gap:4px;"></div>
+        </div>
+        <div class="modal-buttons" style="margin-top:12px;"><button onclick="document.getElementById('modul-modal').classList.remove('active')">Kapat</button><button class="primary" onclick="modulKaydet()">💾 Kaydet</button></div>
+    </div>
+</div>
+
+
+<div id="program-print" style="display:none;position:fixed;inset:0;z-index:9999;background:#fff;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+<style>@media print{body{margin:0}@page{size:A4 landscape;margin:15mm}}#pp-tablo td,#pp-tablo th{border:1px solid #ddd!important}#pp-tablo{border-collapse:collapse}</style>
+<div style="display:flex;flex-direction:column;min-height:100vh;padding:30px;max-width:1100px;margin:0 auto;">
+<div style="text-align:center;border-bottom:3px solid #7c3aed;padding-bottom:16px;">
+<h1 style="font-size:28px;font-weight:800;margin:0 0 6px;color:#1a1a2e;letter-spacing:1px;">Haftalık Ders Programı</h1>
+<p style="color:#666;margin:0;font-size:14px;" id="pp-tarih"></p></div>
+<div style="flex:1;padding:16px 0;">
+<table style="width:100%;border-collapse:collapse;font-size:13px;" id="pp-tablo"><thead><tr style="background:#7c3aed;color:#fff;"><th style="padding:14px 8px;border:1px solid #6d28d9;">Pazartesi</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Salı</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Çarşamba</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Perşembe</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Cuma</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Cumartesi</th><th style="padding:14px 8px;border:1px solid #6d28d9;">Pazar</th></tr></thead><tbody id="pp-body"></tbody></table></div>
+<div style="text-align:center;padding-top:20px;border-top:1px solid #eee;"><span style="font-size:16px;font-weight:800;color:#7c3aed;letter-spacing:4px;">SeeOs</span></div></div></div>
+
+
+<script src="/static/js/app.js?v=13"></script>
+</body>
+</html>

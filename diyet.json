@@ -1,0 +1,18 @@
+{
+  "hedef_kilo": 0,
+  "gunluk_kalori": 2000,
+  "baslangic_kilo": 0,
+  "kayitlar": [
+    {
+      "tarih": "2026-06-23",
+      "ogunler": [
+        {
+          "ogun": "Kahvaltı",
+          "yemek": "Yulaf + Süt",
+          "kalori": 350
+        }
+      ],
+      "kilo": 0
+    }
+  ]
+}
